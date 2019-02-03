@@ -102,26 +102,6 @@ public class Robot extends SampleRobot {
     // String autoSelected = SmartDashboard.getString("Auto Selector",
     // defaultAuto);
     System.out.println("Auto selected: " + autoSelected);
-
-    // MotorSafety improves safety when motors are updated in loops
-    // but is disabled here because motor updates are not looped in
-    // this autonomous mode.
-
-    switch (autoSelected) {
-      case kCustomAuto:
-        // Spin at half speed for two seconds
-        Timer.delay(2.0);
-
-        // Stop robot
-        break;
-      case kDefaultAuto:
-      default:
-        // Drive forwards for two seconds
-        Timer.delay(2.0);
-
-        // Stop robot
-        break;
-    }
   }
 
   /**
