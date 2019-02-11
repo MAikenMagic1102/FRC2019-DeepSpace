@@ -7,13 +7,15 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.Compressor;
+import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import edu.wpi.first.wpilibj.SampleRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import frc.libs.RazerController;
-
+import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Elevator;
 
 /**
@@ -36,12 +38,18 @@ import frc.robot.subsystems.Elevator;
 public class Robot extends SampleRobot {
   private static final String kDefaultAuto = "Default";
   private static final String kCustomAuto = "My Auto";
+  boolean drivemode = false;
+  double flipdrive = 1;
 
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
 
   RazerController driver = new RazerController(0);
 
-  Elevator elevator = new Elevator();
+  Compressor compressor = new Compressor(1);
+  PowerDistributionPanel PDP = new PowerDistributionPanel(0);
+
+  //Elevator elevator = new Elevator();
+  Drivetrain drivetrain = new Drivetrain();
 
   public Robot() {
 
@@ -56,8 +64,8 @@ public class Robot extends SampleRobot {
 
 
   public void updateDashboard(){
-    SmartDashboard.putNumber("Left Motor Encoder", elevator.getLeftMotorPosition());
-    SmartDashboard.putNumber("Right Motor Encoder", elevator.getRightMotorPosition());
+    //SmartDashboard.putNumber("Left Motor Encoder", elevator.getLeftMotorPosition());
+    //SmartDashboard.putNumber("Right Motor Encoder", elevator.getRightMotorPosition());
   }
 
   /**
@@ -119,12 +127,35 @@ public class Robot extends SampleRobot {
    */
   @Override
   public void operatorControl() {
+    compressor.start();
     while (isOperatorControl() && isEnabled()) {
-      elevator.set(driver.leftthumby());
+
+      SmartDashboard.putNumber("LeftY", driver.leftthumby());
+      SmartDashboard.putNumber("RightX", driver.rightthumbx());
+      SmartDashboard.putNumber("Triggers", driver.triggers());
+      SmartDashboard.putNumber("Drive flipped?", flipdrive);
+      SmartDashboard.putBoolean("Mecanum Enabled?", drivemode);
+      SmartDashboard.putBoolean("Pressure Switch", compressor.getPressureSwitchValue());
+
+
+      if(driver.getRawButtonPressed(1)){
+        flipdrive = flipdrive * -1;
+      }
+
+      if(driver.getRawButtonPressed(2)){
+        drivemode = !drivemode;
+      }
+      
+      //If drivemode is false arcade enabled, if drivemode is true....mecanum
+      if(!drivemode){
+        drivetrain.arcade_drive_openloop(flipdrive, driver.leftthumby(), driver.rightthumbx());
+      }else{
+        drivetrain.mecanum_drive_openloop(flipdrive, driver.triggers(), driver.rightthumbx(), driver.leftthumby());
+      }
 
       
       // The motors will be updated every 5ms
-      Timer.delay(0.005);
+      Timer.delay(0.010);
     }
   }
 

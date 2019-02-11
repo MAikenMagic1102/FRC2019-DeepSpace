@@ -37,11 +37,11 @@ public class Elevator{
 
 
     public Elevator(){
-        LeftMotor = new CANSparkMax(2, MotorType.kBrushless);
-        RightMotor = new CANSparkMax(3, MotorType.kBrushless);
-        LeftEncoder = LeftMotor.getEncoder();
-        RightEncoder = RightMotor.getEncoder();
-        RightMotor.setInverted(true);
+        // LeftMotor = new CANSparkMax(6, MotorType.kBrushless);
+        // RightMotor = new CANSparkMax(7, MotorType.kBrushless);
+        // LeftEncoder = LeftMotor.getEncoder();
+        // RightEncoder = RightMotor.getEncoder();
+        // RightMotor.setInverted(true);
     }
 
     public void set(double input){
