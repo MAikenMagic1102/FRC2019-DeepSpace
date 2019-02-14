@@ -8,12 +8,7 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANEncoder;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
-import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.drive.DifferentialDrive;
-import edu.wpi.first.wpilibj.drive.MecanumDrive;
-import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
-import edu.wpi.first.wpilibj.DoubleSolenoid;
-import edu.wpi.first.wpilibj.SpeedControllerGroup;
+import edu.wpi.first.wpilibj.Solenoid;
 
 public class Drivetrain{
 
@@ -25,7 +20,7 @@ public class Drivetrain{
     CANEncoder LeftDriveEncoder;
     CANEncoder RightDriveEncoder;
 
-    DoubleSolenoid shift_solenoid;
+    Solenoid shift_solenoid;
 
     public Drivetrain(){
         RightFront = new CANSparkMax(2, MotorType.kBrushless);
@@ -41,7 +36,19 @@ public class Drivetrain{
         LeftDriveEncoder = LeftRear.getEncoder();
         RightDriveEncoder = RightRear.getEncoder();
 
-        shift_solenoid = new DoubleSolenoid(1, 2, 3);
+        shift_solenoid = new Solenoid(1, 2);
+    }
+
+    public double getLeftRearEncoder_Pos(){
+        return LeftDriveEncoder.getPosition();
+    }
+
+    public double getRightRearEncoder_Pos(){
+        return RightDriveEncoder.getPosition();
+    }
+
+    public boolean getShiftSolenoidState(){
+        return shift_solenoid.get();
     }
 
     //scales the joystick input to cause the robot to have a less steep acceleration curve.
@@ -70,7 +77,8 @@ public class Drivetrain{
     }
 
     public void arcade_drive_openloop(double inversion, double leftY, double rightX){
-        shift_solenoid.set(Value.kReverse);
+        
+        shift_solenoid.set(false);
         
         double leftPower =  leftY - rightX;
         double rightPower = leftY + rightX;
@@ -85,15 +93,6 @@ public class Drivetrain{
 
     public void mecanum_drive_openloop(double inversion, double triggers, double rightX, double leftY){
 
-        //FrontLeft = Ch3 + Ch1 + Ch4
-        //RearLeft = Ch3 + Ch1 - Ch4
-        //FrontRight = Ch3 - Ch1 - Ch4
-        //RearRight = Ch3 - Ch1 + Ch4    
-
-        //Ch1 = Right joystick X-axis
-        //Ch3 = Left joystick Y-axis
-        //Ch4 = Left joystick X-axis
-
         rightX = rightX * -1;
         
         double _FrontRight = leftY - rightX - triggers;
@@ -106,7 +105,7 @@ public class Drivetrain{
         LeftRear.set(_RearLeft);
         LeftFront.set(_FrontLeft);
 
-        shift_solenoid.set(Value.kForward);  
+        shift_solenoid.set(true);  
       
     }
 

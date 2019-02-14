@@ -14,9 +14,12 @@ public class Constants {
     // 4x encoding
     // REV NEO Hall-Sensor Encoder Resolution: 42 counts per rev.
     // 1:3 from output shaft to encoder
-    // 34:50 from gearbox output to drivetrain
+    // 34:50 from gearbox output to drivetrain in Arcade mode
+    // 34:50 from gearbox output to drivetrain in Mecanum mode
     // 4in wheel
-    public double DriveEncoder_TickConversion = (1.0/42.0)*(1.0/3.0)*(24.0/60.0)*(6.0*Math.PI);
+    public double DriveEncoder_TickConversion_Skid = (1.0/42.0)*(1.0/3.0)*(24.0/60.0)*(6.0*Math.PI);
+    public double DriveEncoder_TickConversion_Mecanum = (1.0/42.0)*(1.0/3.0)*(24.0/60.0)*(6.0*Math.PI);
+
 
     public double Drive_kP = 0.1;
     public double Drive_kF = 0.01;
@@ -32,12 +35,6 @@ public class Constants {
     public double Elevator_kD = 0;
     public double Elevator_kF = 0;
     public double Elevator_kGravity = 0.01;
-
-    public double WristMaxVelocity = 5000;
-    public double WristMaxAccel = 6000;
-    public double Wrist_kP = 0.0015;
-    public double Wrist_kF = 0.00025;
-    public double Wrist_kGravity = 0;
 
     public double ArmMaxVelocity = 10000;
     public double ArmMaxAccel = 1700;

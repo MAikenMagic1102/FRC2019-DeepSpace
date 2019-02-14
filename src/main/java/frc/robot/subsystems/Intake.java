@@ -3,8 +3,8 @@ package frc.robot.subsystems;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 
-import edu.wpi.first.wpilibj.Counter;
-import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.DoubleSolenoid;
+import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 
 
 public class Intake{
@@ -13,75 +13,32 @@ public class Intake{
     //Hatch Pantels
 
     TalonSRX ball_intake;
-    TalonSRX hatch_intake;
 
-    Counter hatch_encoder;
+    DoubleSolenoid hatch_intake;
 
-    DigitalInput up_lim;
-    DigitalInput down_lim;
-
-    String last_position = "";
-
-    Intake(){
-        // ball_intake = new TalonSRX(8);
-        // hatch_intake = new TalonSRX(9);
-
-        // hatch_encoder = new Counter(0);
-
-        // up_lim = new DigitalInput(1);
-        // down_lim = new DigitalInput(2);
+    public Intake(){
+         ball_intake = new TalonSRX(8);
+         hatch_intake = new DoubleSolenoid(1, 4,5);
     }
     
-    void ball_forward(double power){
+    public void ball_forward(){
         ball_intake.set(ControlMode.PercentOutput, 0.75);
     }
-    void ball_reverse(double power){
+    
+    public void ball_reverse(){
         ball_intake.set(ControlMode.PercentOutput, -0.75);
     }
-    void ball_stop(double power){
+    
+    public void ball_stop(){
         ball_intake.set(ControlMode.PercentOutput, 0.0);
     }
 
-
-    void hatch_manual(double input){
-        hatch_intake.set(ControlMode.PercentOutput, input);
+    public void hatch_clamp(){
+        hatch_intake.set(Value.kForward);
     }
 
-    void hatch_up(){
-        if(!up_lim.get()){
-            hatch_intake.set(ControlMode.PercentOutput, 1.0);
-        }else{
-            hatch_stop();
-            last_position = "up";
-            hatch_encoder.reset();
-        }
-    }
-
-    void hatch_down(){
-        if(!down_lim.get()){
-            hatch_intake.set(ControlMode.PercentOutput, -1.0);
-        }else{
-            hatch_stop();
-            last_position = "down";
-            hatch_encoder.reset();
-        }
-    }
-
-    void hatch_neutral(){
-        if(hatch_encoder.get() < 44 && last_position.equals("down")){
-            hatch_intake.set(ControlMode.PercentOutput, 1.0);
-        }else{
-            if(hatch_encoder.get() > -44 && last_position.equals("up")){
-                hatch_intake.set(ControlMode.PercentOutput, -1.0);
-            }else{
-                hatch_intake.set(ControlMode.PercentOutput, 0.0);
-
-            }
-        }
-    }
-
-    void hatch_stop(){
-        hatch_intake.set(ControlMode.PercentOutput, 0.0);
+    public void hatch_release(){
+        hatch_intake.set(Value.kReverse);
     }
 
 }

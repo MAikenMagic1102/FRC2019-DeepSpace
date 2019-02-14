@@ -15,9 +15,10 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import frc.libs.RazerController;
+import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Elevator;
-
+import frc.robot.subsystems.Intake;
 /**
  * This is a demo program showing the use of the RobotDrive class. The
  * SampleRobot class is the base of a robot application that will automatically
@@ -40,16 +41,20 @@ public class Robot extends SampleRobot {
   private static final String kCustomAuto = "My Auto";
   boolean drivemode = false;
   double flipdrive = 1;
+  boolean hatch = false;
+  boolean holdarm = false;
 
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
 
   RazerController driver = new RazerController(0);
+  RazerController operator = new RazerController(1);
 
-  Compressor compressor = new Compressor(1);
   PowerDistributionPanel PDP = new PowerDistributionPanel(0);
 
-  //Elevator elevator = new Elevator();
+  Elevator elevator = new Elevator();
   Drivetrain drivetrain = new Drivetrain();
+  Intake intake = new Intake();
+  Arm arm = new Arm();
 
   public Robot() {
 
@@ -66,6 +71,17 @@ public class Robot extends SampleRobot {
   public void updateDashboard(){
     //SmartDashboard.putNumber("Left Motor Encoder", elevator.getLeftMotorPosition());
     //SmartDashboard.putNumber("Right Motor Encoder", elevator.getRightMotorPosition());
+    SmartDashboard.putNumber("LeftY", driver.leftthumby());
+    SmartDashboard.putNumber("RightX", driver.rightthumbx());
+    SmartDashboard.putNumber("Triggers", driver.triggers());
+    
+    SmartDashboard.putNumber("Drive flipped?", flipdrive);
+    SmartDashboard.putBoolean("Mecanum Enabled?", drivemode);
+    SmartDashboard.putBoolean("Shift Solenoid State: ", drivetrain.getShiftSolenoidState());
+
+    SmartDashboard.putNumber("Arm Voltage", arm.getMotorOutputVoltage());
+    SmartDashboard.putNumber("Arm Current", arm.getMotorOutputCurrent());
+
   }
 
   /**
@@ -127,15 +143,7 @@ public class Robot extends SampleRobot {
    */
   @Override
   public void operatorControl() {
-    compressor.start();
     while (isOperatorControl() && isEnabled()) {
-
-      SmartDashboard.putNumber("LeftY", driver.leftthumby());
-      SmartDashboard.putNumber("RightX", driver.rightthumbx());
-      SmartDashboard.putNumber("Triggers", driver.triggers());
-      SmartDashboard.putNumber("Drive flipped?", flipdrive);
-      SmartDashboard.putBoolean("Mecanum Enabled?", drivemode);
-      SmartDashboard.putBoolean("Pressure Switch", compressor.getPressureSwitchValue());
 
 
       if(driver.getRawButtonPressed(1)){
@@ -145,6 +153,10 @@ public class Robot extends SampleRobot {
       if(driver.getRawButtonPressed(2)){
         drivemode = !drivemode;
       }
+
+      if(driver.getRawButtonPressed(3)){
+        hatch = !hatch;
+      }
       
       //If drivemode is false arcade enabled, if drivemode is true....mecanum
       if(!drivemode){
@@ -153,9 +165,37 @@ public class Robot extends SampleRobot {
         drivetrain.mecanum_drive_openloop(flipdrive, driver.triggers(), driver.rightthumbx(), driver.leftthumby());
       }
 
-      
+      if(driver.rtbutton()){
+        intake.ball_forward();
+      }else{
+        if(driver.ltbutton()){
+          intake.ball_reverse();
+        }else{
+          intake.ball_stop();
+        }
+      }
+
+      if(hatch){
+        intake.hatch_clamp();
+      }else{
+        intake.hatch_release();
+      }
+
+      elevator.setManual(operator.leftthumby() * -0.5);
+
+      if(operator.getRawButtonPressed(1)){
+        holdarm = !holdarm;
+      }
+
+      // if(holdarm){
+        
+      // }else{
+        arm.set(operator.rightthumby() * 0.5);
+      //}
+
+
       // The motors will be updated every 5ms
-      Timer.delay(0.010);
+      Timer.delay(0.005);
     }
   }
 
